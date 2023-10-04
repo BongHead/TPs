@@ -152,7 +152,7 @@ def remplir_grille(grille, pourcentage_proie, pourcentage_predateur):
     # TODO: Calculer le nombre de prédateurs à placer dans la grille.
     nbr_predateurs = int(cases_total*pourcentage_predateur)
     # TODO: Générer et mélanger aléatoirement la liste de toutes les positions possibles.
-    pos_possibles = [[i for i in range(col)]*j for j in range(lig)]
+    pos_possibles = random.shuffle([[i for i in range(col)]*j for j in range(lig)])
     # TODO: Placer les proies dans la grille.
     
     # Utilisez MAX_AGE_PROIE pour générer un âge aléatoire entre 0 et l'âge maximum de la proie.
