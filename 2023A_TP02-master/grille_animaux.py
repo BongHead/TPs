@@ -70,10 +70,10 @@ def vider_case(grille, ligne, col):
     grille["matrice"][ligne][col]["animal"] = None
 
 
-def definir_etat(grille, etat, ligne, col):
+def definit_etat(grille, etat, ligne, col):
     # TODO: Mettre à jour l'état de la case située à la ligne et la colonne données.
     # Utiliser le paramètre 'etat', qui est une valeur de l'Enum Contenu (VIDE, PROIE, PREDATEUR).
-    pass
+    grille["matrice"][ligne][col]["etat"] = etat
 
 
 def definir_animal(grille, animal, ligne, col):
@@ -96,13 +96,14 @@ def definir_case(grille, case, ligne, col):
 def generer_entier(min_val, max_val):
     # TODO: Utiliser une librairie pour générer un nombre entier aléatoire entre min_val et max_val inclus.
     # Le résultat doit être un entier.
-    pass
+    return random.randint(min_val,max_val+1)
 
 
 
 def ajuster_position_pour_grille_circulaire(lig, col, dim_lig, dim_col):
     # TODO: Ajuster la position (ligne, colonne) pour une grille circulaire en utilisant les dimensions de la grille.
     # Indice: Un modulo (%) peut être utile.
+    '''
     if lig < 0:
         lig += dim_lig
     elif lig >= dim_lig:
@@ -114,7 +115,9 @@ def ajuster_position_pour_grille_circulaire(lig, col, dim_lig, dim_col):
     elif col >= dim_col:
         while col >= dim_col:
             col -= dim_col
-        
+    '''
+    lig %= dim_lig
+    col %= dim_col
     return lig, col
 
 
@@ -152,19 +155,35 @@ def remplir_grille(grille, pourcentage_proie, pourcentage_predateur):
     # TODO: Calculer le nombre de prédateurs à placer dans la grille.
     nbr_predateurs = int(cases_total*pourcentage_predateur)
     # TODO: Générer et mélanger aléatoirement la liste de toutes les positions possibles.
-    pos_possibles = random.shuffle([[i for i in range(col)]*j for j in range(lig)])
+    pos_possibles = [(i,j) for i in range(lig) for j in range(col)] #(0,0), (0,1) ... etc
+    random.shuffle(pos_possibles)
     # TODO: Placer les proies dans la grille.
-    
+    for proie in range(nbr_proies):
+        choix = random.choice(pos_possibles)
+        pos_possibles.remove(choix)
     # Utilisez MAX_AGE_PROIE pour générer un âge aléatoire entre 0 et l'âge maximum de la proie.
+        age_proie = random.randrange(0,MAX_AGE_PROIE)
     # Utilisez NB_JRS_GESTATION_PROIE et NB_JRS_PUBERTE_PROIE pour déterminer la période de gestation si la proie est en âge de procréer.
-    
+        gest_proie = random.randrange(0,NB_JRS_GESTATION_PROIE) if age_proie > NB_JRS_PUBERTE_PROIE else 0
     # TODO: Mettre à jour le compteur du nombre de proies.
+        case = creer_case(Contenu.PROIE, creer_animal(age=age_proie,jrs_gestation=gest_proie,energie=MIN_ENERGIE))
+        i,j = choix
+        grille["matrice"][i][j] = case
+        incrementer_nb_proies(grille)
     
     # TODO: Placer les prédateurs dans la grille.
+    for predateur in range(nbr_predateurs):
+        choix = random.choice(pos_possibles)
+        pos_possibles.remove(choix)
     # Utilisez MAX_AGE_PRED pour générer un âge aléatoire entre 0 et l'âge maximum du prédateur.
+        age_pred = random.randrange(0,MAX_AGE_PRED)
     # Utilisez NB_JRS_GESTATION_PRED et NB_JRS_PUBERTE_PRED pour déterminer la période de gestation si le prédateur est en âge de procréer.
+        gest_pred = random.randrange(0,NB_JRS_GESTATION_PRED) if age_pred > NB_JRS_PUBERTE_PRED else 0
     # Utilisez AJOUT_ENERGIE pour initialiser la quantité d'énergie du prédateur.
-    
+        energie_pred = MIN_ENERGIE + AJOUT_ENERGIE #???
     # TODO: Mettre à jour le compteur du nombre de prédateurs.
-    
-    pass
+        case = creer_animal(Contenu.PREDATEUR, creer_animal(age=age_pred,jrs_gestation=gest_pred,energie=energie_pred))
+        i,j = choix
+        grille["matrice"][i][j] = case
+        incrementer_nb_predateurs(grille)
+        
