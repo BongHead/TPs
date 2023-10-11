@@ -9,7 +9,7 @@ def simulation_est_terminee(grille):
     # TODO: Vérifier si la simulation est terminée.
     # Elle se termine lorsque le nombre de proies ou le nombre de prédateurs est égal à zéro.
     # Renvoyer un booléen indiquant l'état de la simulation.
-    pass
+    return grille["nb_proies"] == 0 or grille["nb_predateurs"] == 0
 
 
 def rendre_animaux_disponibles(grille):
@@ -34,10 +34,22 @@ def deplacer_animal(grille, ligne, col, animal):
 def executer_cycle_proie(grille, ligne, col, animal):
     # TODO: Gérer le cycle de vie d'une proie à une position donnée sur la grille.
     # 1. Vieillir l'animal. Si l'âge dépasse MAX_AGE_PROIE, le retirer de la grille et décrémenter le compteur de proies.
+    animal["age"] += NB_JRS_PUBERTE_PROIE
     # 2. Si l'animal est en âge de se reproduire et a attendu suffisamment (NB_JRS_GESTATION_PROIE), tenter de générer un nouveau bébé proie.
+    if animal["age"] > MAX_AGE_PROIE:
+        vider_case(grille,ligne,col)
+        decrementer_nb_proies(grille)
+    elif animal["age"] >= NB_JRS_PUBERTE_PROIE and animal["jrs_gestation"] >= NB_JRS_GESTATION_PROIE:
+        nv,x,y = choix_voisin_autour(grille,ligne,col,Contenu.VIDE)
+        if (x and y) and grille["nb_proies"] < NB_MAX_PROIES:
+            case = creer_case(Contenu.PROIE,creer_animal())
+            definir_case(grille,case,x,y)
+            incrementer_nb_proies(grille)
+        definir_jours_gestation(animal,0)
+    else:
+        deplacer_animal(grille,ligne,col,animal)
     #    Pour ce faire, chercher un voisin vide autour de la proie. Si un voisin est trouvé, créer un bébé proie et le placer dans la grille.
     # 3. Sinon, déplacer l'animal vers une case vide à proximité.
-    pass
 
 
 def executer_cycle_predateur(grille, ligne, col, animal):
